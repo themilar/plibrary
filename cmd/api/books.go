@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/themilar/plibrary/internal/models"
 )
 
 func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
@@ -17,5 +19,17 @@ func (app *application) bookDetail(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	fmt.Fprintf(w, "details of the book %d\n", id)
+	book := models.Book{
+		ID:        id,
+		CreatedAt: time.Now(),
+		Title:     "Is it real",
+		Pages:     250,
+		Version:   1,
+		Genres:    []string{"nonfiction", "biography"},
+	}
+	if err = app.writeJson(w, http.StatusAccepted, book); err != nil {
+		app.logger.Print(err)
+		http.Error(w, "the server encountered a problem", http.StatusInternalServerError)
+	}
+
 }
