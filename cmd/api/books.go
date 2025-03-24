@@ -27,7 +27,7 @@ func (app *application) bookDetail(w http.ResponseWriter, r *http.Request) {
 		Version:   1,
 		Genres:    []string{"nonfiction", "biography"},
 	}
-	if err = app.writeJson(w, http.StatusAccepted, book); err != nil {
+	if err = app.writeJson(w, http.StatusAccepted, envelope{"book": book}, nil); err != nil {
 		app.logger.Print(err)
 		http.Error(w, "the server encountered a problem", http.StatusInternalServerError)
 	}

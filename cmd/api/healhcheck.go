@@ -6,15 +6,18 @@ import (
 )
 
 func (app *application) healthcheckHandler(w http.ResponseWriter, r *http.Request) {
-	data := map[string]string{
-		"status":      "available",
-		"version":     version,
-		"environment": app.config.env,
-	}
+
+	data := envelope{
+		"status": "available",
+		"system_info": map[string]string{
+
+			"version":     version,
+			"environment": app.config.env,
+		}}
 	resp, err := json.Marshal(data)
 	if err != nil {
 		app.logger.Println(err)
-		http.Error(w, "", http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 	resp = append(resp, '\n')

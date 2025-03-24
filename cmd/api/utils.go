@@ -13,8 +13,8 @@ import (
 // 	return id, nil
 
 // }
-func (app *application) writeJson(w http.ResponseWriter, status int, data interface{}) error {
-	resp, err := json.Marshal(data)
+func (app *application) writeJson(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
+	resp, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
 		return err
 	}
@@ -25,3 +25,5 @@ func (app *application) writeJson(w http.ResponseWriter, status int, data interf
 	w.Write(resp)
 	return nil
 }
+
+type envelope map[string]interface{}
