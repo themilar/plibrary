@@ -19,6 +19,10 @@ func (app *application) writeJson(w http.ResponseWriter, status int, data envelo
 		return err
 	}
 	resp = append(resp, '\n')
+
+	for k, v := range headers {
+		w.Header()[k] = v
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 
