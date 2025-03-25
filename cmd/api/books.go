@@ -11,7 +11,19 @@ import (
 )
 
 func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "create a new book")
+	var input struct {
+		Title     string   `json:"title"`
+		Published int32    `json:"published"`
+		Pages     int32    `json:"pages"`
+		Genres    []string `json:"genres"`
+	}
+	err := app.readJson(w, r, &input)
+	if err != nil {
+		app.badRequestErrorResponse(w, r, err)
+		return
+	}
+
+	fmt.Fprintf(w, "%+v\n", input)
 }
 func (app *application) bookDetail(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
