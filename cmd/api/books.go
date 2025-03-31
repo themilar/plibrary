@@ -13,24 +13,27 @@ import (
 	"github.com/themilar/plibrary/internal/models"
 )
 
-type JsonValidator struct {
+type JsonValidationError struct {
 	Errors map[string]string
 }
 
-func (jv *JsonValidator) AddError(key, message string) {
+func (jv *JsonValidationError) AddError(key, message string) {
 	if _, ok := jv.Errors[key]; !ok {
 		jv.Errors[key] = message
 	}
 }
-func (jv *JsonValidator) Check(ok bool, key, message string) {
-	if !ok {
-		jv.AddError(key, message)
+func validateDate(fl validator.FieldLevel) bool {
+	if fl.Field().Int() > int64(time.Now().Year()) {
+		return false
+	} else if fl.Field().Int() < 1430 {
+		return false
 	}
+	return true
 }
 func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title     string   `json:"title" validate:"required,max=56"`
-		Published int32    `json:"published" validate:"required"`
+		Published int32    `json:"published" validate:"required,publication_date"`
 		Pages     int32    `json:"pages" validate:"required,gt=0"`
 		Genres    []string `json:"genres" validate:"required"`
 	}
@@ -40,14 +43,14 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	validate := validator.New(validator.WithRequiredStructEnabled())
-	jv := JsonValidator{
+	validate.RegisterValidation("publication_date", validateDate)
+	jv := JsonValidationError{
 		Errors: make(map[string]string),
 	}
 	err = validate.Struct(input)
 	if err != nil {
 		var validateErrs validator.ValidationErrors
 		if errors.As(err, &validateErrs) {
-			fmt.Println(err)
 			for _, e := range validateErrs {
 				fmt.Println(e.Tag(), e.Param())
 				switch {
@@ -57,12 +60,9 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 					jv.AddError(strings.ToLower(e.Field()), fmt.Sprintf("above the character limit: %v", e.Param()))
 				case e.Tag() == "gt":
 					jv.AddError(strings.ToLower(e.Field()), "must be provided")
+				case e.Tag() == "publication_date":
+					jv.AddError(strings.ToLower(e.Field()), fmt.Sprintf("publication date cannot exceed the range: 1430-%v", time.Now().Year()))
 				}
-
-				// jv.Check(e.Tag() == "required", strings.ToLower(e.Field()), "must be provided")
-				// jv.Check(e.Tag() == "max", strings.ToLower(e.Field()), fmt.Sprintf("the character limit: %v", e.Param()))
-				// jv.Check(e.Tag() == "gt", strings.ToLower(e.Field()), fmt.Sprintf("below the required value: %v", e.Param()))
-				// fmt.Println(e)
 			}
 			app.failedValidationErrorResponse(w, r, jv.Errors)
 		}
