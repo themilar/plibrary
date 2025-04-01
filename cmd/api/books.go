@@ -35,7 +35,7 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 		Title     string   `json:"title" validate:"required,max=56"`
 		Published int32    `json:"published" validate:"required,publication_date"`
 		Pages     int32    `json:"pages" validate:"required,gt=0"`
-		Genres    []string `json:"genres" validate:"required"`
+		Genres    []string `json:"genres" validate:"required,unique,gt=0,lt=6"`
 	}
 	err := app.readJson(w, r, &input)
 	if err != nil {
@@ -60,8 +60,12 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 					jv.AddError(strings.ToLower(e.Field()), fmt.Sprintf("above the character limit: %v", e.Param()))
 				case e.Tag() == "gt":
 					jv.AddError(strings.ToLower(e.Field()), "must be provided")
+				case e.Tag() == "lt":
+					jv.AddError(strings.ToLower(e.Field()), "must not exceed 5 items")
 				case e.Tag() == "publication_date":
 					jv.AddError(strings.ToLower(e.Field()), fmt.Sprintf("publication date cannot exceed the range: 1430-%v", time.Now().Year()))
+				case e.Tag() == "unique":
+					jv.AddError(strings.ToLower(e.Field()), "cannot contain duplicate genres")
 				}
 			}
 			app.failedValidationErrorResponse(w, r, jv.Errors)
