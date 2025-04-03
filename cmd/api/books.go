@@ -1,11 +1,9 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -33,8 +31,8 @@ func validateDate(fl validator.FieldLevel) bool {
 func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title     string   `json:"title" validate:"required,max=56"`
-		Published int32    `json:"published" validate:"required,publication_date"`
-		Pages     int32    `json:"pages" validate:"required,gt=0"`
+		Published int      `json:"published" validate:"required,publication_date"`
+		Pages     int      `json:"pages" validate:"required,gt=0"`
 		Genres    []string `json:"genres" validate:"required,unique,gt=0,lt=6"`
 	}
 	err := app.readJson(w, r, &input)
@@ -42,38 +40,18 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 		app.badRequestErrorResponse(w, r, err)
 		return
 	}
-	validate := validator.New(validator.WithRequiredStructEnabled())
-	validate.RegisterValidation("publication_date", validateDate)
-	jv := JsonValidationError{
-		Errors: make(map[string]string),
-	}
-	err = validate.Struct(input)
-	if err != nil {
-		var validateErrs validator.ValidationErrors
-		if errors.As(err, &validateErrs) {
-			for _, e := range validateErrs {
-				fmt.Println(e.Tag(), e.Param())
-				switch {
-				case e.Tag() == "required":
-					jv.AddError(strings.ToLower(e.Field()), "must be provided")
-				case e.Tag() == "max":
-					jv.AddError(strings.ToLower(e.Field()), fmt.Sprintf("above the character limit: %v", e.Param()))
-				case e.Tag() == "gt":
-					jv.AddError(strings.ToLower(e.Field()), "must be provided")
-				case e.Tag() == "lt":
-					jv.AddError(strings.ToLower(e.Field()), "must not exceed 5 items")
-				case e.Tag() == "publication_date":
-					jv.AddError(strings.ToLower(e.Field()), fmt.Sprintf("publication date cannot exceed the range: 1430-%v", time.Now().Year()))
-				case e.Tag() == "unique":
-					jv.AddError(strings.ToLower(e.Field()), "cannot contain duplicate genres")
-				}
-			}
-			app.failedValidationErrorResponse(w, r, jv.Errors)
-		}
-		// from here you can create your own error messages in whatever language you wish
-		return
+	book := &models.Book{
+		Title:     input.Title,
+		Published: input.Published,
+		Pages:     input.Pages,
+		Genres:    input.Genres,
 	}
 
+	validationErrors := book.Validate()
+	if len(validationErrors) != 0 {
+		app.failedValidationErrorResponse(w, r, validationErrors)
+		return
+	}
 	fmt.Fprintf(w, "%+v\n", input)
 }
 func (app *application) bookDetail(w http.ResponseWriter, r *http.Request) {
