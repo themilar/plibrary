@@ -1,10 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/themilar/plibrary/internal/models"
@@ -49,16 +49,18 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 func (app *application) bookDetail(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id < 1 {
-		http.NotFound(w, r)
+		app.notFoundErrorResponse(w, r)
 		return
 	}
-	book := models.Book{
-		ID:        id,
-		CreatedAt: time.Now(),
-		Title:     "Is it real",
-		Pages:     250,
-		Version:   1,
-		Genres:    []string{"nonfiction", "biography"},
+	book, err := app.models.Books.Get(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, models.ErrRecordNotFound):
+			app.notFoundErrorResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
 	}
 	if err = app.writeJson(w, http.StatusAccepted, envelope{"book": book}, nil); err != nil {
 		app.serverErrorResponse(w, r, err)

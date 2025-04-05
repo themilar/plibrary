@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"strings"
@@ -43,7 +44,21 @@ func (b BookModel) Insert(book *Book) error {
 	return b.DB.QueryRow(context.Background(), query, params...).Scan(&book.ID, &book.CreatedAt, &book.Version)
 }
 func (b BookModel) Get(id int64) (*Book, error) {
-	return nil, nil
+	if id < 1 {
+		return nil, ErrRecordNotFound
+	}
+	query := `SELECT id,created_at,title,published,pages,genres,version FROM books WHERE id=$1`
+	var book Book
+	err := b.DB.QueryRow(context.Background(), query, id).Scan(&book.ID, &book.CreatedAt, &book.Title, &book.Published, &book.Pages, &book.Genres, &book.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+	return &book, nil
 }
 func (b BookModel) Update(book *Book) error {
 	return nil
