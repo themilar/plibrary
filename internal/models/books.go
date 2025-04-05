@@ -1,13 +1,14 @@
 package models
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Book struct {
@@ -20,7 +21,7 @@ type Book struct {
 	Version   int       `json:"version"`
 }
 type BookModel struct {
-	DB *sqlx.DB
+	DB *pgxpool.Pool
 }
 
 var ErrRecordNotFound = errors.New("record not found")
@@ -29,7 +30,7 @@ type Models struct {
 	Books BookModel
 }
 
-func NewModels(db *sqlx.DB) Models {
+func NewModels(db *pgxpool.Pool) Models {
 	return Models{
 		Books: BookModel{DB: db},
 	}
@@ -39,7 +40,7 @@ func (b BookModel) Insert(book *Book) error {
 	query := `INSERT INTO books (title,published,pages,genres)
 	VALUES ($1,$2,$3,$4) RETURNING id,created_at,version`
 	params := []interface{}{book.Title, book.Published, book.Pages, book.Genres}
-	return b.DB.QueryRow(query, params...).Scan(&book.ID, &book.CreatedAt, &book.Version)
+	return b.DB.QueryRow(context.Background(), query, params...).Scan(&book.ID, &book.CreatedAt, &book.Version)
 }
 func (b BookModel) Get(id int64) (*Book, error) {
 	return nil, nil

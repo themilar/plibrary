@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -8,8 +9,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	"github.com/themilar/plibrary/internal/models"
 )
@@ -42,7 +43,7 @@ func main() {
 	if err != nil {
 		logger.Fatal("Error loading env file")
 	}
-	db, err := sqlx.Open("pgx", os.Getenv("DATABASE_URL"))
+	db, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		logger.Fatal(err)
 	}
