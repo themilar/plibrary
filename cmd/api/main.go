@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"flag"
 	"fmt"
 	"log"
@@ -10,7 +9,9 @@ import (
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
+	"github.com/themilar/plibrary/internal/models"
 )
 
 var version string = "1.0.0"
@@ -26,6 +27,7 @@ type config struct {
 type application struct {
 	config config
 	logger *log.Logger
+	models models.Models
 }
 
 func main() {
@@ -40,8 +42,7 @@ func main() {
 	if err != nil {
 		logger.Fatal("Error loading env file")
 	}
-	fmt.Println(os.Getenv("DATABASE_URL"))
-	db, err := sql.Open("pgx", os.Getenv("DATABASE_URL"))
+	db, err := sqlx.Open("pgx", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -50,6 +51,7 @@ func main() {
 	app := &application{
 		config: cfg,
 		logger: logger,
+		models: models.NewModels(db),
 	}
 
 	srv := http.Server{

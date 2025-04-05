@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/jmoiron/sqlx"
 )
 
 type Book struct {
@@ -17,6 +18,37 @@ type Book struct {
 	Pages     int       `json:"pages,omitempty,string" validate:"required,gt=0"`
 	Genres    []string  `json:"genres,omitempty" validate:"required,unique,gt=0,lt=6"`
 	Version   int       `json:"version"`
+}
+type BookModel struct {
+	DB *sqlx.DB
+}
+
+var ErrRecordNotFound = errors.New("record not found")
+
+type Models struct {
+	Books BookModel
+}
+
+func NewModels(db *sqlx.DB) Models {
+	return Models{
+		Books: BookModel{DB: db},
+	}
+}
+
+func (b BookModel) Insert(book *Book) error {
+	query := `INSERT INTO books (title,published,pages,genres)
+	VALUES ($1,$2,$3,$4) RETURNING id,created_at,version`
+	params := []interface{}{book.Title, book.Published, book.Pages, book.Genres}
+	return b.DB.QueryRow(query, params...).Scan(&book.ID, &book.CreatedAt, &book.Version)
+}
+func (b BookModel) Get(id int64) (*Book, error) {
+	return nil, nil
+}
+func (b BookModel) Update(book *Book) error {
+	return nil
+}
+func (b BookModel) Delete(id int64) error {
+	return nil
 }
 
 type JsonValidationError struct {

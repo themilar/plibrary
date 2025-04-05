@@ -7,33 +7,15 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-playground/validator/v10"
 	"github.com/themilar/plibrary/internal/models"
 )
 
-type JsonValidationError struct {
-	Errors map[string]string
-}
-
-func (jv *JsonValidationError) AddError(key, message string) {
-	if _, ok := jv.Errors[key]; !ok {
-		jv.Errors[key] = message
-	}
-}
-func validateDate(fl validator.FieldLevel) bool {
-	if fl.Field().Int() > int64(time.Now().Year()) {
-		return false
-	} else if fl.Field().Int() < 1430 {
-		return false
-	}
-	return true
-}
 func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Title     string   `json:"title" validate:"required,max=56"`
-		Published int      `json:"published" validate:"required,publication_date"`
-		Pages     int      `json:"pages" validate:"required,gt=0"`
-		Genres    []string `json:"genres" validate:"required,unique,gt=0,lt=6"`
+		Title     string   `json:"title" `
+		Published int      `json:"published" `
+		Pages     int      `json:"pages" `
+		Genres    []string `json:"genres" `
 	}
 	err := app.readJson(w, r, &input)
 	if err != nil {
@@ -52,7 +34,17 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 		app.failedValidationErrorResponse(w, r, validationErrors)
 		return
 	}
-	fmt.Fprintf(w, "%+v\n", input)
+	err = app.models.Books.Insert(book)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/v1/books/%d", book.ID))
+	err = app.writeJson(w, http.StatusCreated, envelope{"book": book}, headers)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 func (app *application) bookDetail(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
