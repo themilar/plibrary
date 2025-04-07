@@ -67,3 +67,49 @@ func (app *application) bookDetail(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+func (app *application) bookUpdate(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundErrorResponse(w, r)
+		return
+	}
+	book, err := app.models.Books.Get(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, models.ErrRecordNotFound):
+			app.notFoundErrorResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+	var input struct {
+		Title     string   `json:"title" `
+		Published int      `json:"published" `
+		Pages     int      `json:"pages" `
+		Genres    []string `json:"genres" `
+	}
+	err = app.readJson(w, r, &input)
+	if err != nil {
+		app.badRequestErrorResponse(w, r, err)
+		return
+	}
+	book.Title = input.Title
+	book.Published = input.Published
+	book.Pages = input.Pages
+	book.Genres = input.Genres
+	validationErrors := book.Validate()
+	if len(validationErrors) != 0 {
+		app.failedValidationErrorResponse(w, r, validationErrors)
+		return
+	}
+	err = app.models.Books.Update(book)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	err = app.writeJson(w, http.StatusOK, envelope{"book": book}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}

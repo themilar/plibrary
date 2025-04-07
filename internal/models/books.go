@@ -40,7 +40,7 @@ func NewModels(db *pgxpool.Pool) Models {
 func (b BookModel) Insert(book *Book) error {
 	query := `INSERT INTO books (title,published,pages,genres)
 	VALUES ($1,$2,$3,$4) RETURNING id,created_at,version`
-	params := []interface{}{book.Title, book.Published, book.Pages, book.Genres}
+	params := []any{book.Title, book.Published, book.Pages, book.Genres}
 	return b.DB.QueryRow(context.Background(), query, params...).Scan(&book.ID, &book.CreatedAt, &book.Version)
 }
 func (b BookModel) Get(id int64) (*Book, error) {
@@ -61,7 +61,9 @@ func (b BookModel) Get(id int64) (*Book, error) {
 	return &book, nil
 }
 func (b BookModel) Update(book *Book) error {
-	return nil
+	query := `UPDATE books SET title=$1,published=$2,pages=$3,genres=$4,version=version+1 WHERE id=$5 RETURNING version`
+	params := []any{book.Title, book.Published, book.Pages, book.Genres, book.ID}
+	return b.DB.QueryRow(context.Background(), query, params...).Scan(&book.Version)
 }
 func (b BookModel) Delete(id int64) error {
 	return nil
