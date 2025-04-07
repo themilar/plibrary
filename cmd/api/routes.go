@@ -15,5 +15,6 @@ func (app *application) routes() *chi.Mux {
 	router.Post("/v1/books", app.bookCreate)
 	router.Get("/v1/books/{id}", app.bookDetail)
 	router.Put("/v1/books/{id}", app.bookUpdate)
+	router.Delete("/v1/books/{id}", app.bookDelete)
 	return router
 }

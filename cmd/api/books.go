@@ -113,3 +113,25 @@ func (app *application) bookUpdate(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) bookDelete(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundErrorResponse(w, r)
+		return
+	}
+	err = app.models.Books.Delete(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, models.ErrRecordNotFound):
+			app.notFoundErrorResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+	err = app.writeJson(w, http.StatusNoContent, envelope{}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}

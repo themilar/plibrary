@@ -66,6 +66,19 @@ func (b BookModel) Update(book *Book) error {
 	return b.DB.QueryRow(context.Background(), query, params...).Scan(&book.Version)
 }
 func (b BookModel) Delete(id int64) error {
+	if id < 1 {
+		return ErrRecordNotFound
+	}
+	query := `DELETE FROM books WHERE ID=$1`
+	result, err := b.DB.Exec(context.Background(), query, id)
+	if err != nil {
+		return err
+	}
+	rowsAffected := result.RowsAffected()
+
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
 	return nil
 }
 

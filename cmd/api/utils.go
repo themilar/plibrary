@@ -37,7 +37,7 @@ func (app *application) writeJson(w http.ResponseWriter, status int, data envelo
 	return nil
 }
 
-type envelope map[string]interface{}
+type envelope map[string]any
 
 func (app *application) readJson(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 	maxBytes := 1_048_576
