@@ -84,9 +84,9 @@ func (app *application) bookUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var input struct {
-		Title     string   `json:"title" `
-		Published int      `json:"published" `
-		Pages     int      `json:"pages" `
+		Title     *string  `json:"title" `
+		Published *int     `json:"published" `
+		Pages     *int     `json:"pages" `
 		Genres    []string `json:"genres" `
 	}
 	err = app.readJson(w, r, &input)
@@ -94,10 +94,18 @@ func (app *application) bookUpdate(w http.ResponseWriter, r *http.Request) {
 		app.badRequestErrorResponse(w, r, err)
 		return
 	}
-	book.Title = input.Title
-	book.Published = input.Published
-	book.Pages = input.Pages
-	book.Genres = input.Genres
+	if input.Title != nil {
+		book.Title = *input.Title
+	}
+	if input.Published != nil {
+		book.Published = *input.Published
+	}
+	if input.Pages != nil {
+		book.Pages = *input.Pages
+	}
+	if input.Genres != nil {
+		book.Genres = input.Genres
+	}
 	validationErrors := book.Validate()
 	if len(validationErrors) != 0 {
 		app.failedValidationErrorResponse(w, r, validationErrors)
