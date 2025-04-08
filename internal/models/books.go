@@ -25,7 +25,10 @@ type BookModel struct {
 	DB *pgxpool.Pool
 }
 
-var ErrRecordNotFound = errors.New("record not found")
+var (
+	ErrRecordNotFound = errors.New("record not found")
+	ErrEditConflict   = errors.New("edit conflict")
+)
 
 type Models struct {
 	Books BookModel
@@ -61,9 +64,18 @@ func (b BookModel) Get(id int64) (*Book, error) {
 	return &book, nil
 }
 func (b BookModel) Update(book *Book) error {
-	query := `UPDATE books SET title=$1,published=$2,pages=$3,genres=$4,version=version+1 WHERE id=$5 RETURNING version`
-	params := []any{book.Title, book.Published, book.Pages, book.Genres, book.ID}
-	return b.DB.QueryRow(context.Background(), query, params...).Scan(&book.Version)
+	query := `UPDATE books SET title=$1,published=$2,pages=$3,genres=$4,version=version+1 WHERE id=$5 AND version=$6 RETURNING version`
+	params := []any{book.Title, book.Published, book.Pages, book.Genres, book.ID, book.Version}
+	err := b.DB.QueryRow(context.Background(), query, params...).Scan(&book.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+	return nil
 }
 func (b BookModel) Delete(id int64) error {
 	if id < 1 {

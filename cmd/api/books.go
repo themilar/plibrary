@@ -113,7 +113,12 @@ func (app *application) bookUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 	err = app.models.Books.Update(book)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		switch {
+		case errors.Is(err, models.ErrEditConflict):
+			app.editConflictErrorResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
 		return
 	}
 	err = app.writeJson(w, http.StatusOK, envelope{"book": book}, nil)

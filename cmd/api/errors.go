@@ -37,3 +37,7 @@ func (app *application) badRequestErrorResponse(w http.ResponseWriter, r *http.R
 func (app *application) failedValidationErrorResponse(w http.ResponseWriter, r *http.Request, err map[string]string) {
 	app.errorResponse(w, r, http.StatusUnprocessableEntity, err)
 }
+func (app *application) editConflictErrorResponse(w http.ResponseWriter, r *http.Request) {
+	message := "unable to complete the update due to a conflict, try again"
+	app.errorResponse(w, r, http.StatusConflict, message)
+}
