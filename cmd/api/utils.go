@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -20,6 +21,28 @@ func (app *application) readIDParam(r *http.Request) (int64, error) {
 	return id, nil
 
 }
+
+type envelope map[string]any
+
+func (app *application) readString(qs url.Values, key string, defaultValue string) string {
+	s := qs.Get(key)
+	if s == "" {
+		return defaultValue
+	}
+	return s
+}
+func (app *application) readInt(qs url.Values, key string, defaultValue int) int {
+	s := qs.Get(key)
+	if s == "" {
+		return defaultValue
+	}
+	i, err := strconv.Atoi(s)
+	if err != nil {
+
+	}
+	return i
+}
+
 func (app *application) writeJson(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
 	resp, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
@@ -36,8 +59,6 @@ func (app *application) writeJson(w http.ResponseWriter, status int, data envelo
 	w.Write(resp)
 	return nil
 }
-
-type envelope map[string]any
 
 func (app *application) readJson(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 	maxBytes := 1_048_576

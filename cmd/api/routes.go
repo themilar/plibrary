@@ -12,6 +12,7 @@ func (app *application) routes() *chi.Mux {
 	router.MethodNotAllowed(app.methodNotAllowedErrorResponse)
 
 	router.Get("/v1/healthcheck", app.healthcheckHandler)
+	router.Get("/v1/books", app.bookList)
 	router.Post("/v1/books", app.bookCreate)
 	router.Get("/v1/books/{id}", app.bookDetail)
 	router.Patch("/v1/books/{id}", app.bookUpdate)

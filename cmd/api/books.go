@@ -148,3 +148,27 @@ func (app *application) bookDelete(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 	}
 }
+func (app *application) bookList(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Title  string
+		Genres []string
+		Filters
+	}
+	qs := r.URL.Query()
+	input.Title = app.readString(qs, "title", "")
+	// input.Genres=
+
+	page := (qs.Get("page"))
+
+	input.Filters.Page = page
+	size := qs.Get("size")
+	input.Filters.Size = size
+	input.Filters.Sort = app.readString(qs, "sort", "id")
+	// v := validator.New(validator.WithRequiredStructEnabled())
+	filterErrors := ValidateFilters(input.Filters)
+	if len(filterErrors) > 0 {
+		app.failedValidationErrorResponse(w, r, filterErrors)
+		return
+	}
+	fmt.Fprintf(w, "%+v\n", input)
+}
