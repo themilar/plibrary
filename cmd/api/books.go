@@ -157,15 +157,21 @@ func (app *application) bookList(w http.ResponseWriter, r *http.Request) {
 	qs := r.URL.Query()
 	input.Title = app.readString(qs, "title", "")
 	// input.Genres=
-
-	page := (qs.Get("page"))
-
+	filterTypeErrors := map[string]string{}
+	page, err := strconv.Atoi(qs.Get("page"))
+	if err != nil {
+		filterTypeErrors["page"] = "must be an integer"
+		// app.failedValidationErrorResponse(w, r, map[string]string{"page": "must be an integer"})
+	}
 	input.Filters.Page = page
-	size := qs.Get("size")
+	size, err := strconv.Atoi(qs.Get("size"))
+	if err != nil {
+		filterTypeErrors["size"] = "must be an integer"
+		// app.failedValidationErrorResponse(w, r, map[string]string{"size": "must be an integer"})
+	}
 	input.Filters.Size = size
 	input.Filters.Sort = app.readString(qs, "sort", "id")
-	// v := validator.New(validator.WithRequiredStructEnabled())
-	filterErrors := ValidateFilters(input.Filters)
+	filterErrors := ValidateFilters(input.Filters, filterTypeErrors)
 	if len(filterErrors) > 0 {
 		app.failedValidationErrorResponse(w, r, filterErrors)
 		return
