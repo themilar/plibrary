@@ -41,8 +41,12 @@ func NewModels(db *pgxpool.Pool) Models {
 	}
 }
 func (b BookModel) All(title string, genres []string, filters internal.Filters) ([]*Book, error) {
-	query := `SELECT id,created_at,title,published,pages,genres,version FROM books ORDER BY id`
-	rows, err := b.DB.Query(context.Background(), query)
+	query := `SELECT id,created_at,title,published,pages,genres,version 
+	FROM books 
+	WHERE (LOWER(title)=LOWER($1) OR $1='')
+	AND (genres@>$2 OR $2='{}') 
+	ORDER BY id`
+	rows, err := b.DB.Query(context.Background(), query, title, genres)
 	if err != nil {
 		return nil, err
 	}
