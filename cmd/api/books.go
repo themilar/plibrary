@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/themilar/plibrary/internal"
 	"github.com/themilar/plibrary/internal/models"
 )
 
@@ -152,28 +153,42 @@ func (app *application) bookList(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title  string
 		Genres []string
-		Filters
+		internal.Filters
 	}
 	qs := r.URL.Query()
 	input.Title = app.readString(qs, "title", "")
 	input.Genres = app.readCSV(qs, "genres", []string{})
 	// input.Genres=
 	filterTypeErrors := map[string]string{}
-	page, err := strconv.Atoi(qs.Get("page"))
+	// var size int
+	p := qs.Get("page")
+	if p == "" {
+		p = "1"
+	}
+	page, err := strconv.Atoi(p)
 	if err != nil {
 		filterTypeErrors["page"] = "must be an integer"
 	}
 	input.Filters.Page = page
-	size, err := strconv.Atoi(qs.Get("size"))
+	s := app.checkEmptyStrings(qs.Get("size"), "12")
+	size, err := strconv.Atoi(s)
 	if err != nil {
 		filterTypeErrors["size"] = "must be an integer"
 	}
 	input.Filters.Size = size
 	input.Filters.Sort = app.readString(qs, "sort", "id")
-	filterErrors := ValidateFilters(input.Filters, filterTypeErrors)
+	filterErrors := internal.ValidateFilters(input.Filters, filterTypeErrors)
 	if len(filterErrors) > 0 {
 		app.failedValidationErrorResponse(w, r, filterErrors)
 		return
 	}
-	fmt.Fprintf(w, "%+v\n", input)
+	books, err := app.models.Books.All(input.Title, input.Genres, input.Filters)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	err = app.writeJson(w, http.StatusOK, envelope{"books": books}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }

@@ -38,6 +38,12 @@ func (app *application) readCSV(qs url.Values, key string, defaultValue []string
 	}
 	return strings.Split(csv, ",")
 }
+func (app *application) checkEmptyStrings(value, defaultValue string) string {
+	if value == "" {
+		return defaultValue
+	}
+	return value
+}
 
 // func (app *application) readInt(qs url.Values, key string, errorMap map[string]string, defaultValue int) int {
 // 	s := qs.Get(key)

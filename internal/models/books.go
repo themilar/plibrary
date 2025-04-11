@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/themilar/plibrary/internal"
 )
 
 type Book struct {
@@ -38,6 +39,28 @@ func NewModels(db *pgxpool.Pool) Models {
 	return Models{
 		Books: BookModel{DB: db},
 	}
+}
+func (b BookModel) All(title string, genres []string, filters internal.Filters) ([]*Book, error) {
+	query := `SELECT id,created_at,title,published,pages,genres,version FROM books ORDER BY id`
+	rows, err := b.DB.Query(context.Background(), query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	books := []*Book{}
+	for rows.Next() {
+		var book Book
+		err := rows.Scan(&book.ID, &book.CreatedAt, &book.Title, &book.Published, &book.Pages, &book.Genres, &book.Version)
+		if err != nil {
+			return nil, err
+		}
+		books = append(books, &book)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return books, nil
 }
 
 func (b BookModel) Insert(book *Book) error {
