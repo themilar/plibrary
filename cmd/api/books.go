@@ -187,3 +187,16 @@ func (app *application) bookList(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 	}
 }
+func (app *application) bookSearch(w http.ResponseWriter, r *http.Request) {
+	qs := r.URL.Query()
+	title := app.readString(qs, "q", "")
+	books, err := app.models.Books.FullTextSearch(title)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	err = app.writeJson(w, http.StatusOK, envelope{"books": books}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}

@@ -13,6 +13,7 @@ func (app *application) routes() *chi.Mux {
 
 	router.Get("/v1/healthcheck", app.healthcheckHandler)
 	router.Get("/v1/books", app.bookList)
+	router.Get("/v1/books/search", app.bookSearch)
 	router.Post("/v1/books", app.bookCreate)
 	router.Get("/v1/books/{id}", app.bookDetail)
 	router.Patch("/v1/books/{id}", app.bookUpdate)
