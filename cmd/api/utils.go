@@ -31,17 +31,26 @@ func (app *application) readString(qs url.Values, key string, defaultValue strin
 	}
 	return s
 }
-func (app *application) readInt(qs url.Values, key string, defaultValue int) int {
-	s := qs.Get(key)
-	if s == "" {
+func (app *application) readCSV(qs url.Values, key string, defaultValue []string) []string {
+	csv := qs.Get(key)
+	if csv == "" {
 		return defaultValue
 	}
-	i, err := strconv.Atoi(s)
-	if err != nil {
-
-	}
-	return i
+	return strings.Split(csv, ",")
 }
+
+// func (app *application) readInt(qs url.Values, key string, errorMap map[string]string, defaultValue int) int {
+// 	s := qs.Get(key)
+// 	if s == "" {
+// 		return defaultValue
+// 	}
+// 	i, err := strconv.Atoi(s)
+// 	if err != nil {
+// 		errorMap[key] = "must be an integer"
+// return defaultValue
+// 	}
+// 	return i
+// }
 
 func (app *application) writeJson(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
 	resp, err := json.MarshalIndent(data, "", "\t")

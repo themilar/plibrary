@@ -11,8 +11,8 @@ import (
 
 type Filters struct {
 	// change from number to validate integer
-	Page int    `validate:"max=5,min=1"`
-	Size int    `validate:"max=5,min=1"`
+	Page int    `validate:"max=1000,min=1"`
+	Size int    `validate:"max=20,min=1"`
 	Sort string `validate:"oneofci=id title published pages"`
 }
 type FilterValidationErrors struct {
@@ -39,14 +39,12 @@ func ValidateFilters(f Filters, fte map[string]string) map[string]string {
 		var validateErrs validator.ValidationErrors
 		if errors.As(err, &validateErrs) {
 			for _, e := range validateErrs {
-				fmt.Println(e.Tag(), e.Param(), e.Field(), e.Kind())
+				fmt.Println(e.Tag(), e.Param(), e.Field(), e.Value())
 				switch {
 				case e.Tag() == "max":
 					fve.AddError(strings.ToLower(e.Field()), fmt.Sprintf("value must be less than: %v", e.Param()))
 				case e.Tag() == "min":
 					fve.AddError(strings.ToLower(e.Field()), fmt.Sprintf("value must be greater than: %v", e.Param()))
-				case e.Tag() == "lt":
-					fve.AddError(strings.ToLower(e.Field()), "must not exceed 5 items")
 				case e.Tag() == "oneofci":
 					fve.AddError(strings.ToLower(e.Field()), fmt.Sprintf("can only contain values: %v", e.Param()))
 				}

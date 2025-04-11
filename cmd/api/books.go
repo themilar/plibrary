@@ -156,18 +156,17 @@ func (app *application) bookList(w http.ResponseWriter, r *http.Request) {
 	}
 	qs := r.URL.Query()
 	input.Title = app.readString(qs, "title", "")
+	input.Genres = app.readCSV(qs, "genres", []string{})
 	// input.Genres=
 	filterTypeErrors := map[string]string{}
 	page, err := strconv.Atoi(qs.Get("page"))
 	if err != nil {
 		filterTypeErrors["page"] = "must be an integer"
-		// app.failedValidationErrorResponse(w, r, map[string]string{"page": "must be an integer"})
 	}
 	input.Filters.Page = page
 	size, err := strconv.Atoi(qs.Get("size"))
 	if err != nil {
 		filterTypeErrors["size"] = "must be an integer"
-		// app.failedValidationErrorResponse(w, r, map[string]string{"size": "must be an integer"})
 	}
 	input.Filters.Size = size
 	input.Filters.Sort = app.readString(qs, "sort", "id")
