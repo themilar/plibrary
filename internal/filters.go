@@ -15,7 +15,7 @@ import (
 type Filters struct {
 	Page int    `validate:"max=1000,min=1"`
 	Size int    `validate:"max=20,min=1"`
-	Sort string `validate:"oneofci=title published pages -title -published -pages"`
+	Sort string `validate:"oneofci=id title published pages -title -published -pages"`
 }
 type FilterValidationErrors struct {
 	Errors map[string]string
@@ -45,6 +45,12 @@ func (f Filters) SortDirection() string {
 		return "DESC"
 	}
 	return "ASC"
+}
+func (f Filters) Limit() int {
+	return f.Size
+}
+func (f Filters) Offset() int {
+	return (f.Page - 1) * f.Size
 }
 
 func ValidateFilters(f Filters, fte map[string]string) map[string]string {
