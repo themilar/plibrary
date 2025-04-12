@@ -45,7 +45,7 @@ func (b BookModel) All(title string, genres []string, filters internal.Filters) 
 	FROM books 
 	WHERE (LOWER(title)=LOWER($1) OR $1='')
 	AND (genres@>$2 OR $2='{}') 
-	ORDER BY id`
+	ORDER BY id ASC`
 	rows, err := b.DB.Query(context.Background(), query, title, genres)
 	if err != nil {
 		return nil, err
