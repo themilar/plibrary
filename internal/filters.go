@@ -7,6 +7,8 @@ import (
 	"reflect"
 	"strings"
 
+	"slices"
+
 	"github.com/go-playground/validator/v10"
 )
 
@@ -33,10 +35,8 @@ func (f Filters) SortColumn() string {
 		panic("that field does not exist")
 	}
 
-	for _, safeValue := range strings.Split(safeSortValues, " ") {
-		if f.Sort == safeValue {
-			return strings.TrimPrefix(f.Sort, "-")
-		}
+	if slices.Contains(strings.Split(safeSortValues, " "), f.Sort) {
+		return strings.TrimPrefix(f.Sort, "-")
 	}
 	panic("unsafe sort param: " + f.Sort)
 }
