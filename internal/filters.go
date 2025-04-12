@@ -13,7 +13,7 @@ import (
 type Filters struct {
 	Page int    `validate:"max=1000,min=1"`
 	Size int    `validate:"max=20,min=1"`
-	Sort string `validate:"oneofci=title published pages"`
+	Sort string `validate:"oneofci=title published pages -title -published -pages"`
 }
 type FilterValidationErrors struct {
 	Errors map[string]string
@@ -25,13 +25,10 @@ func (fve *FilterValidationErrors) AddError(key, message string) {
 	}
 }
 func (f Filters) SortColumn() string {
-	fmt.Println(f)
 	sortField, ok := reflect.TypeOf(f).FieldByName("Sort")
-	fmt.Println(sortField)
 	validateTag := sortField.Tag.Get("validate")
 	vtSlice := strings.Split(validateTag, "=")
 	safeSortValues := vtSlice[1]
-	fmt.Println(safeSortValues)
 	if !ok {
 		panic("that field does not exist")
 	}
@@ -56,7 +53,6 @@ func ValidateFilters(f Filters, fte map[string]string) map[string]string {
 		Errors: make(map[string]string),
 	}
 	err := v.Struct(f)
-	fmt.Println(f, f.SortColumn(), f.SortDirection())
 	if err != nil {
 		var validateErrs validator.ValidationErrors
 		if errors.As(err, &validateErrs) {
