@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"math"
 	"reflect"
 	"strings"
 
@@ -20,7 +21,25 @@ type Filters struct {
 type FilterValidationErrors struct {
 	Errors map[string]string
 }
+type PaginationMetadata struct {
+	CurrentPage  int `json:"current_page,omitempty"`
+	PageSize     int `json:"page_size,omitempty"`
+	FirstPage    int `json:"first_page,omitempty"`
+	LastPage     int `json:"last_page,omitempty"`
+	TotalRecords int `json:"total_records,omitempty"`
+}
 
+func CalculateMetadata(totalRecords, page, pageSize int) PaginationMetadata {
+	if totalRecords == 0 {
+		return PaginationMetadata{}
+	}
+	return PaginationMetadata{
+		CurrentPage: page,
+		PageSize:    pageSize,
+		FirstPage:   1,
+		LastPage:    int(math.Ceil(float64(totalRecords) / float64(pageSize))),
+	}
+}
 func (fve *FilterValidationErrors) AddError(key, message string) {
 	if _, ok := fve.Errors[key]; !ok {
 		fve.Errors[key] = message

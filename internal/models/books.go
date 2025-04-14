@@ -40,8 +40,8 @@ func NewModels(db *pgxpool.Pool) Models {
 		Books: BookModel{DB: db},
 	}
 }
-func (b BookModel) All(title string, genres []string, filters internal.Filters) ([]*Book, error) {
-	query := fmt.Sprintf(`SELECT id,created_at,title,published,pages,genres,version 
+func (b BookModel) All(title string, genres []string, filters internal.Filters) ([]*Book, internal.PaginationMetadata, error) {
+	query := fmt.Sprintf(`SELECT COUNT(*) OVER(), id,created_at,title,published,pages,genres,version 
 	FROM books 
 	WHERE (LOWER(title)=LOWER($1) OR $1='')
 	AND (genres@>$2 OR $2='{}') 
@@ -50,23 +50,25 @@ func (b BookModel) All(title string, genres []string, filters internal.Filters) 
 	params := []any{title, genres, filters.Limit(), filters.Offset()}
 	rows, err := b.DB.Query(context.Background(), query, params...)
 	if err != nil {
-		return nil, err
+		return nil, internal.PaginationMetadata{}, err
 	}
 	defer rows.Close()
 
+	totalRecords := 0
 	books := []*Book{}
 	for rows.Next() {
 		var book Book
-		err := rows.Scan(&book.ID, &book.CreatedAt, &book.Title, &book.Published, &book.Pages, &book.Genres, &book.Version)
+		err := rows.Scan(&totalRecords, &book.ID, &book.CreatedAt, &book.Title, &book.Published, &book.Pages, &book.Genres, &book.Version)
 		if err != nil {
-			return nil, err
+			return nil, internal.PaginationMetadata{}, err
 		}
 		books = append(books, &book)
 	}
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, internal.PaginationMetadata{}, err
 	}
-	return books, nil
+	metadata := internal.CalculateMetadata(totalRecords, filters.Page, filters.Size)
+	return books, metadata, nil
 }
 func (b BookModel) FullTextSearch(title string) ([]*Book, error) {
 	query := `SELECT * FROM books WHERE (to_tsvector('simple',title) @@ plainto_tsquery('simple',$1) OR $1='') ORDER BY id`

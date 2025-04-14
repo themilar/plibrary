@@ -177,12 +177,12 @@ func (app *application) bookList(w http.ResponseWriter, r *http.Request) {
 		app.failedValidationErrorResponse(w, r, filterErrors)
 		return
 	}
-	books, err := app.models.Books.All(input.Title, input.Genres, input.Filters)
+	books, metadata, err := app.models.Books.All(input.Title, input.Genres, input.Filters)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
-	err = app.writeJson(w, http.StatusOK, envelope{"books": books}, nil)
+	err = app.writeJson(w, http.StatusOK, envelope{"books": books, "metadata": metadata}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
