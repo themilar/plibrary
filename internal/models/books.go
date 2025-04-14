@@ -182,7 +182,7 @@ func (b *Book) Validate() map[string]string {
 				case e.Tag() == "max":
 					jv.AddError(strings.ToLower(e.Field()), fmt.Sprintf("above the character limit: %v", e.Param()))
 				case e.Tag() == "gt":
-					jv.AddError(strings.ToLower(e.Field()), "must be provided")
+					jv.AddError(strings.ToLower(e.Field()), "must be above 0")
 				case e.Tag() == "lt":
 					jv.AddError(strings.ToLower(e.Field()), "must not exceed 5 items")
 				case e.Tag() == "publication_date":
