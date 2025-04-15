@@ -1,13 +1,17 @@
 package main
 
 import (
+	"time"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/httprate"
 )
 
 func (app *application) routes() *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(middleware.Recoverer)
+	router.Use(httprate.LimitByIP(50, time.Minute))
 	router.NotFound(app.notFoundErrorResponse)
 	router.MethodNotAllowed(app.methodNotAllowedErrorResponse)
 
