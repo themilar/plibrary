@@ -7,7 +7,7 @@ import (
 
 func (app *application) routes() *chi.Mux {
 	router := chi.NewRouter()
-	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
 	router.NotFound(app.notFoundErrorResponse)
 	router.MethodNotAllowed(app.methodNotAllowedErrorResponse)
 

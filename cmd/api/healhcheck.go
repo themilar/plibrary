@@ -16,7 +16,7 @@ func (app *application) healthcheckHandler(w http.ResponseWriter, r *http.Reques
 		}}
 	resp, err := json.Marshal(data)
 	if err != nil {
-		app.logger.Println(err)
+		app.logger.Info(err.Error())
 		app.serverErrorResponse(w, r, err)
 		return
 	}

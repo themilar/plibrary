@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
@@ -27,7 +27,7 @@ type config struct {
 
 type application struct {
 	config config
-	logger *log.Logger
+	logger *slog.Logger
 	models models.Models
 }
 
@@ -38,17 +38,18 @@ func main() {
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
 	flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("DATABASE_URL"), "PostgreSQL DSN")
 	flag.Parse()
-	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
+
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	err := godotenv.Load()
 	if err != nil {
-		logger.Fatal("Error loading env file")
+		logger.Error("Error loading env file")
 	}
 	db, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
-		logger.Fatal(err)
+		logger.Error(err.Error())
 	}
 	defer db.Close()
-	logger.Printf("Database connection pool established")
+	logger.Info("Database connection pool established")
 	app := &application{
 		config: cfg,
 		logger: logger,
@@ -58,11 +59,12 @@ func main() {
 	srv := http.Server{
 		Addr:         fmt.Sprintf("localhost:%d", cfg.port),
 		Handler:      app.routes(),
+		ErrorLog:     slog.NewLogLogger(slog.NewJSONHandler(os.Stdout, nil), slog.LevelError),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  time.Second * 10,
 		WriteTimeout: time.Second * 10,
 	}
-	logger.Printf("starting %s server on %s", cfg.env, srv.Addr)
+	logger.Info("starting server", "addr", srv.Addr, "env", cfg.env)
 	err = srv.ListenAndServe()
-	logger.Fatal(err)
+	logger.Error(err.Error())
 }
