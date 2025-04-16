@@ -3,11 +3,8 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log/slog"
-	"net/http"
 	"os"
-	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -56,15 +53,9 @@ func main() {
 		models: models.NewModels(db),
 	}
 
-	srv := http.Server{
-		Addr:         fmt.Sprintf("localhost:%d", cfg.port),
-		Handler:      app.routes(),
-		ErrorLog:     slog.NewLogLogger(slog.NewJSONHandler(os.Stdout, nil), slog.LevelError),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  time.Second * 10,
-		WriteTimeout: time.Second * 10,
+	err = app.serve()
+	if err != nil {
+		logger.Error(err.Error())
 	}
-	logger.Info("starting server", "addr", srv.Addr, "env", cfg.env)
-	err = srv.ListenAndServe()
-	logger.Error(err.Error())
+
 }
