@@ -29,24 +29,25 @@ type application struct {
 }
 
 func main() {
-
 	var cfg config
-	flag.IntVar(&cfg.port, "port", 4000, "API server port")
-	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
-	flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("DATABASE_URL"), "PostgreSQL DSN")
-	flag.Parse()
-
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	err := godotenv.Load()
 	if err != nil {
 		logger.Error("Error loading env file")
 	}
-	db, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+
+	flag.IntVar(&cfg.port, "port", 4000, "API server port")
+	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("DATABASE_URL"), "PostgreSQL DSN")
+	flag.Parse()
+
+	db, err := pgxpool.New(context.Background(), cfg.db.dsn)
 	if err != nil {
 		logger.Error(err.Error())
 	}
 	defer db.Close()
 	logger.Info("Database connection pool established")
+
 	app := &application{
 		config: cfg,
 		logger: logger,
