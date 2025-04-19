@@ -50,6 +50,40 @@ definitions:
             - published
         type: object
         x-go-package: github.com/themilar/plibrary/internal/models
+    PaginationMetadata:
+        description: PaginationMetadata contains pagination information
+        properties:
+            current_page:
+                description: The current page number
+                example: 2
+                format: int64
+                type: integer
+                x-go-name: CurrentPage
+            first_page:
+                description: The first page number
+                example: 1
+                format: int64
+                type: integer
+                x-go-name: FirstPage
+            last_page:
+                description: The last page number
+                example: 7
+                format: int64
+                type: integer
+                x-go-name: LastPage
+            page_size:
+                description: Number of items per page
+                example: 2
+                format: int64
+                type: integer
+                x-go-name: PageSize
+        required:
+            - current_page
+            - page_size
+            - first_page
+            - last_page
+        type: object
+        x-go-package: github.com/themilar/plibrary/cmd/api
 host: localhost:4000
 info:
     description: 'Documentation of the plibrary API:'
@@ -57,15 +91,19 @@ info:
     version: 1.0.0
 paths:
     /books:
+        get:
+            operationId: listBooks
+            tags:
+                - books
         post:
             operationId: createBook
             produces:
                 - application/json
             responses:
                 "201":
-                    $ref: '#/responses/successResponse'
+                    $ref: '#/responses/bookDetailsuccessResponse'
                 "400":
-                    $ref: '#/responses/errorResponse'
+                    $ref: '#/responses/badRequest'
                 "422":
                     $ref: '#/responses/errorResponse'
                 "500":
@@ -74,6 +112,23 @@ paths:
             tags:
                 - books
     /books/{id}:
+        delete:
+            description: This will delete a specific book by its ID.
+            operationId: deleteBook
+            produces:
+                - application/json
+            responses:
+                "204":
+                    $ref: '#/responses/noContent'
+                "400":
+                    $ref: '#/responses/badRequest'
+                "404":
+                    $ref: '#/responses/notFound'
+                "500":
+                    $ref: '#/responses/internalServerError'
+            summary: Delete a book
+            tags:
+                - books
         get:
             description: This will return the details of a specific book by its ID.
             operationId: getBookDetail
@@ -81,16 +136,51 @@ paths:
                 - application/json
             responses:
                 "200":
-                    description: ""
+                    $ref: '#/responses/successResponse'
                 "400":
-                    $ref: '#/responses/errorResponse'
+                    $ref: '#/responses/badRequest'
                 "404":
-                    $ref: '#/responses/errorResponse'
+                    $ref: '#/responses/notFound'
                 "500":
                     $ref: '#/responses/errorResponse'
             summary: Get book details.
             tags:
                 - books
+        patch:
+            description: This will update the specified book with the parameters specified in the request body.
+            operationId: updateBook
+            produces:
+                - application/json
+            responses:
+                "200":
+                    $ref: '#/responses/successResponse'
+                "400":
+                    $ref: '#/responses/badRequest'
+                "404":
+                    $ref: '#/responses/notFound'
+                "409":
+                    $ref: '#/responses/conflict'
+                "500":
+                    $ref: '#/responses/errorResponse'
+            summary: Update book details
+            tags:
+                - books
+    /books/search:
+        get:
+            description: This will return the details of a specific book by its ID.
+            operationId: searchBooks
+            produces:
+                - application/json
+            responses:
+                "200":
+                    $ref: '#/responses/successResponse'
+                "400":
+                    $ref: '#/responses/badRequest'
+                "500":
+                    $ref: '#/responses/errorResponse'
+            summary: Get book details.
+            tags:
+                - searchbooks
 produces:
     - application/json
 responses:
@@ -104,8 +194,24 @@ responses:
                     type: string
                     x-go-name: Message
             type: object
+    paginatedBooksResponse:
+        description: PaginatedBooksResponse is the response with a paginated list of books
+        schema:
+            properties:
+                books:
+                    description: The list of books
+                    items:
+                        $ref: '#/definitions/Book'
+                    type: array
+                    x-go-name: Books
+                metadata:
+                    $ref: '#/definitions/PaginationMetadata'
+            required:
+                - books
+                - metadata
+            type: object
     successResponse:
-        description: BooksResponse is the response with a list of books
+        description: bookSearchSuccessResponse is the response with a list of books that match the query parameter
         schema:
             properties:
                 books:

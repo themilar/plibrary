@@ -15,6 +15,7 @@ type bookSearchSuccessResponse struct {
 }
 
 // bookDetailSuccessResponse contains the response for a single book object
+// swagger: response bookDetail
 type bookDetailSuccessResponse struct {
 	Body struct {
 		book models.Book
@@ -62,13 +63,43 @@ type PaginatedBooksResponse struct {
 }
 
 // Error response
-// swagger:response errorResponse
-type errorResponse struct {
+// swagger:response internalServerError
+type errorResponse500 struct {
 	// The error message
 	// in: body
 	Body struct {
 		// The error message
 		// example: Internal server error
+		Message string `json:"message"`
+	}
+}
+
+// swagger:response badRequest
+type errorResponse400andotherclienterrors struct {
+	// The error message
+	// in: body
+	Body struct {
+		// The error message
+		// example: badRequest
+		Message string `json:"message"`
+	}
+}
+
+// swagger:response noContent
+type noContentResponse204 struct {
+	// The error message
+	// in: body
+	Body struct {
+	}
+}
+
+// swagger:response notFound
+type errorResponse404 struct {
+	// The error message
+	// in: body
+	Body struct {
+		// The error message
+		// example: requested resource not found
 		Message string `json:"message"`
 	}
 }

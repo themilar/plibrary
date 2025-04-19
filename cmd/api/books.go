@@ -19,10 +19,10 @@ import (
 //	- application/json
 //
 //	Responses:
-//	  201: bookDetailsuccessResponse
+//	  201: bookDetailSuccessResponse
 //	  400: badRequest
-//	  422: errorResponse
-//	  500: errorResponse
+//	  422: badRequest
+//	  500: internalServerResponse
 func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title     string   `json:"title" `
@@ -70,10 +70,10 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 //	- application/json
 //
 //	Responses:
-//	  200: successResponse
+//	  200: bookDetailSuccessResponse
 //	  400: badRequest
 //	  404: notFound
-//	  500: errorResponse
+//	  500: internalServerError
 func (app *application) bookDetail(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id < 1 {
@@ -96,6 +96,22 @@ func (app *application) bookDetail(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// swagger:route PATCH /books/{id} books updateBook
+//
+// # Update book details
+//
+// This will update the specified book with the parameters specified in the request body.
+//
+//	Produces:
+//	- application/json
+//
+//	Responses:
+//
+// 200: successResponse
+// 400: badRequest
+// 404: notFound
+// 409: badRequest
+// 500: internalServerError
 func (app *application) bookUpdate(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -156,6 +172,21 @@ func (app *application) bookUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// swagger:route DELETE /books/{id} books deleteBook
+//
+// Delete a book
+//
+// This will delete a specific book by its ID.
+//
+//	Produces:
+//	- application/json
+//
+//	Responses:
+//	  204: noContent
+//	  400: badRequest
+//	  404: notFound
+//	  500: internalServerError
+
 func (app *application) bookDelete(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -178,6 +209,33 @@ func (app *application) bookDelete(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Get a paginated list of books
+//
+// This endpoint returns a paginated list of books.
+//
+//	Produces:
+//	- application/json
+//
+//	Parameters:
+//	  + name: page
+//	    in: query
+//	    description: Page number to retrieve
+//	    required: false
+//	    type: integer
+//	    default: 1
+//	  + name: size
+//	    in: query
+//	    description: Number of items per page
+//	    required: false
+//	    type: integer
+//	    default: 10
+//
+//	Responses:
+//	  200: paginatedBooksResponse
+//	  400: badRequest
+//	  500: internalServerError
+//
+//swagger:route GET /books books listBooks
 func (app *application) bookList(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title  string
@@ -216,6 +274,20 @@ func (app *application) bookList(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+// swagger:route GET /books/search searchbooks searchBooks
+//
+// Get book details.
+//
+// This will return the details of a specific book by its ID.
+//
+//	Produces:
+//	- application/json
+//
+//	Responses:
+//	  200: successResponse
+//	  400: badRequest
+//	  500: internalServerError
 func (app *application) bookSearch(w http.ResponseWriter, r *http.Request) {
 	qs := r.URL.Query()
 	title := app.readString(qs, "q", "")
