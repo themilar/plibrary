@@ -19,10 +19,10 @@ import (
 //	- application/json
 //
 //	Responses:
-//	  201: bookDetailSuccessResponse
+//	  201: bookDetail
 //	  400: badRequest
 //	  422: badRequest
-//	  500: internalServerResponse
+//	  500: internalServerError
 func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title     string   `json:"title" `
@@ -70,7 +70,7 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 //	- application/json
 //
 //	Responses:
-//	  200: bookDetailSuccessResponse
+//	  200: bookDetail
 //	  400: badRequest
 //	  404: notFound
 //	  500: internalServerError
@@ -209,27 +209,11 @@ func (app *application) bookDelete(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Get a paginated list of books
-//
+// Get a paginated list of books.
 // This endpoint returns a paginated list of books.
 //
 //	Produces:
 //	- application/json
-//
-//	Parameters:
-//	  + name: page
-//	    in: query
-//	    description: Page number to retrieve
-//	    required: false
-//	    type: integer
-//	    default: 1
-//	  + name: size
-//	    in: query
-//	    description: Number of items per page
-//	    required: false
-//	    type: integer
-//	    default: 10
-//
 //	Responses:
 //	  200: paginatedBooksResponse
 //	  400: badRequest
@@ -275,17 +259,17 @@ func (app *application) bookList(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:route GET /books/search searchbooks searchBooks
+// swagger:route GET /books/search books searchBooks
 //
-// Get book details.
+// Search for books.
 //
-// This will return the details of a specific book by its ID.
+// This will return books that match the search query parameter.
 //
 //	Produces:
 //	- application/json
 //
 //	Responses:
-//	  200: successResponse
+//	  200: bookSearch
 //	  400: badRequest
 //	  500: internalServerError
 func (app *application) bookSearch(w http.ResponseWriter, r *http.Request) {

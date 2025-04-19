@@ -93,6 +93,47 @@ paths:
     /books:
         get:
             operationId: listBooks
+            parameters:
+                - default: 1
+                  description: The page number for pagination
+                  example: 2
+                  format: int64
+                  in: query
+                  maximum: 1000
+                  minimum: 1
+                  name: page
+                  type: integer
+                  x-go-name: Page
+                - default: 12
+                  description: Number of items per page
+                  example: 20
+                  format: int64
+                  in: query
+                  maximum: 20
+                  minimum: 1
+                  name: size
+                  type: integer
+                  x-go-name: Size
+                - description: Filter by genre
+                  example: sci-fi
+                  in: query
+                  name: genre
+                  type: string
+                  x-go-name: Genre
+                - default: title
+                  description: Sort results by field
+                  enum:
+                    - title
+                    - published
+                    - pages
+                    - -title
+                    - -published
+                    - -pages
+                  example: published
+                  in: query
+                  name: sort
+                  type: string
+                  x-go-name: Sort
             tags:
                 - books
         post:
@@ -101,13 +142,13 @@ paths:
                 - application/json
             responses:
                 "201":
-                    $ref: '#/responses/bookDetailsuccessResponse'
+                    $ref: '#/responses/bookDetail'
                 "400":
                     $ref: '#/responses/badRequest'
                 "422":
-                    $ref: '#/responses/errorResponse'
+                    $ref: '#/responses/badRequest'
                 "500":
-                    $ref: '#/responses/errorResponse'
+                    $ref: '#/responses/internalServerError'
             summary: Add a book to the database.
             tags:
                 - books
@@ -136,13 +177,13 @@ paths:
                 - application/json
             responses:
                 "200":
-                    $ref: '#/responses/successResponse'
+                    $ref: '#/responses/bookDetail'
                 "400":
                     $ref: '#/responses/badRequest'
                 "404":
                     $ref: '#/responses/notFound'
                 "500":
-                    $ref: '#/responses/errorResponse'
+                    $ref: '#/responses/internalServerError'
             summary: Get book details.
             tags:
                 - books
@@ -159,38 +200,75 @@ paths:
                 "404":
                     $ref: '#/responses/notFound'
                 "409":
-                    $ref: '#/responses/conflict'
+                    $ref: '#/responses/badRequest'
                 "500":
-                    $ref: '#/responses/errorResponse'
+                    $ref: '#/responses/internalServerError'
             summary: Update book details
             tags:
                 - books
     /books/search:
         get:
-            description: This will return the details of a specific book by its ID.
+            description: This will return books that match the search query parameter.
             operationId: searchBooks
             produces:
                 - application/json
             responses:
                 "200":
-                    $ref: '#/responses/successResponse'
+                    $ref: '#/responses/bookSearch'
                 "400":
                     $ref: '#/responses/badRequest'
                 "500":
-                    $ref: '#/responses/errorResponse'
-            summary: Get book details.
+                    $ref: '#/responses/internalServerError'
+            summary: Search for books.
             tags:
-                - searchbooks
+                - books
 produces:
     - application/json
 responses:
-    errorResponse:
+    badRequest:
+        description: ""
+        schema:
+            properties:
+                message:
+                    description: The error message
+                    example: badRequest
+                    type: string
+                    x-go-name: Message
+            type: object
+    bookSearch:
+        description: bookSearchSuccessResponse is the response with a list of books that match the query parameter
+        schema:
+            properties:
+                books:
+                    description: The list of books
+                    items:
+                        $ref: '#/definitions/Book'
+                    type: array
+                    x-go-name: Books
+            required:
+                - books
+            type: object
+    internalServerError:
         description: Error response
         schema:
             properties:
                 message:
                     description: The error message
                     example: Internal server error
+                    type: string
+                    x-go-name: Message
+            type: object
+    noContent:
+        description: ""
+        schema:
+            type: object
+    notFound:
+        description: ""
+        schema:
+            properties:
+                message:
+                    description: The error message
+                    example: requested resource not found
                     type: string
                     x-go-name: Message
             type: object
@@ -209,19 +287,6 @@ responses:
             required:
                 - books
                 - metadata
-            type: object
-    successResponse:
-        description: bookSearchSuccessResponse is the response with a list of books that match the query parameter
-        schema:
-            properties:
-                books:
-                    description: The list of books
-                    items:
-                        $ref: '#/definitions/Book'
-                    type: array
-                    x-go-name: Books
-            required:
-                - books
             type: object
 schemes:
     - http

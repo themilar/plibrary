@@ -3,7 +3,7 @@ package main
 import "github.com/themilar/plibrary/internal/models"
 
 // bookSearchSuccessResponse is the response with a list of books that match the query parameter
-// swagger:response successResponse
+// swagger:response bookSearch
 type bookSearchSuccessResponse struct {
 	// A list of books
 	// in: body
@@ -102,4 +102,46 @@ type errorResponse404 struct {
 		// example: requested resource not found
 		Message string `json:"message"`
 	}
+}
+
+// BookQueryParams contains all possible query parameters for book filter and pagination
+// swagger:parameters listBooks
+type BookQueryParams struct {
+	// The page number for pagination
+	// in: query
+	// minimum: 1
+	// maximum: 1000
+	// default: 1
+	// example: 2
+	Page int `json:"page"`
+
+	// Number of items per page
+	// in: query
+	// minimum: 1
+	// maximum: 20
+	// default: 12
+	// example: 20
+	Size int `json:"size"`
+
+	// Filter by genre
+	// in: query
+	// example: sci-fi
+	Genre string `json:"genre"`
+
+	// Sort results by field
+	// in: query
+	// enum: ["title", "published", "pages","-title", "-published", "-pages"]
+	// default: title
+	// example: published
+	Sort string `json:"sort"`
+}
+
+// SearchQueryParams contains the search query parameter
+// swagger:parameters searchBooks
+type SearchQueryParams struct {
+	// Search query string to filter books by title or content
+	// in: query
+	// pattern: ^[a-zA-Z0-9 ]{1,50}$
+	// example: fantasy adventure
+	q string `json:"q"`
 }
