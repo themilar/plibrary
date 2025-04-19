@@ -1,0 +1,123 @@
+basePath: /v1
+consumes:
+    - application/json
+definitions:
+    Book:
+        description: Book represents a book in the system
+        properties:
+            genres:
+                description: Genres of the book
+                example:
+                    - sci-fi
+                    - action
+                    - adventure
+                items:
+                    type: string
+                type: array
+                x-go-name: Genres
+            id:
+                description: The unique ID of the book
+                example: 13
+                format: int64
+                type: integer
+                x-go-name: ID
+            pages:
+                description: The number of pages in the book
+                example: "134"
+                format: int64
+                type: string
+                x-go-name: Pages
+            published:
+                description: The year the book was published
+                example: 2018
+                format: int64
+                type: integer
+                x-go-name: Published
+            title:
+                description: The title of the book
+                example: Black Panther
+                type: string
+                x-go-name: Title
+            version:
+                description: Version number of the book record
+                example: 1
+                format: int64
+                type: integer
+                x-go-name: Version
+        required:
+            - id
+            - title
+            - published
+        type: object
+        x-go-package: github.com/themilar/plibrary/internal/models
+host: localhost:4000
+info:
+    description: 'Documentation of the plibrary API:'
+    title: plibrary API documentation
+    version: 1.0.0
+paths:
+    /books:
+        post:
+            operationId: createBook
+            produces:
+                - application/json
+            responses:
+                "201":
+                    $ref: '#/responses/successResponse'
+                "400":
+                    $ref: '#/responses/errorResponse'
+                "422":
+                    $ref: '#/responses/errorResponse'
+                "500":
+                    $ref: '#/responses/errorResponse'
+            summary: Add a book to the database.
+            tags:
+                - books
+    /books/{id}:
+        get:
+            description: This will return the details of a specific book by its ID.
+            operationId: getBookDetail
+            produces:
+                - application/json
+            responses:
+                "200":
+                    description: ""
+                "400":
+                    $ref: '#/responses/errorResponse'
+                "404":
+                    $ref: '#/responses/errorResponse'
+                "500":
+                    $ref: '#/responses/errorResponse'
+            summary: Get book details.
+            tags:
+                - books
+produces:
+    - application/json
+responses:
+    errorResponse:
+        description: Error response
+        schema:
+            properties:
+                message:
+                    description: The error message
+                    example: Internal server error
+                    type: string
+                    x-go-name: Message
+            type: object
+    successResponse:
+        description: BooksResponse is the response with a list of books
+        schema:
+            properties:
+                books:
+                    description: The list of books
+                    items:
+                        $ref: '#/definitions/Book'
+                    type: array
+                    x-go-name: Books
+            required:
+                - books
+            type: object
+schemes:
+    - http
+    - https
+swagger: "2.0"

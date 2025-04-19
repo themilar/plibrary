@@ -13,14 +13,31 @@ import (
 	"github.com/themilar/plibrary/internal"
 )
 
+// Book represents a book in the system
+// swagger:model Book
 type Book struct {
-	ID        int64     `json:"id"`
+	// The unique ID of the book
+	// required: true
+	// example: 13
+	ID int64 `json:"id"`
+	// The title of the book
+	// required: true
+	// example: Black Panther
 	Title     string    `json:"title" validate:"required,max=56"`
 	CreatedAt time.Time `json:"-"`
-	Published int       `json:"published" validate:"required,publication_date"`
-	Pages     int       `json:"pages,omitempty,string" validate:"required,gt=0"`
-	Genres    []string  `json:"genres,omitempty" validate:"required,unique,gt=0,lt=6"`
-	Version   int       `json:"version"`
+	// The year the book was published
+	// required: true
+	// example: 2018
+	Published int `json:"published" validate:"required,publication_date"`
+	// The number of pages in the book
+	// example: 134
+	Pages int `json:"pages,omitempty,string" validate:"required,gt=0"`
+	// Genres of the book
+	// example: ["sci-fi", "action", "adventure"]
+	Genres []string `json:"genres,omitempty" validate:"required,unique,gt=0,lt=6"`
+	// Version number of the book record
+	// example: 1
+	Version int `json:"version"`
 }
 type BookModel struct {
 	DB *pgxpool.Pool

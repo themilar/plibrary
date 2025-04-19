@@ -11,6 +11,18 @@ import (
 	"github.com/themilar/plibrary/internal/models"
 )
 
+// swagger:route POST /books books createBook
+//
+// Add a book to the database.
+//
+//	Produces:
+//	- application/json
+//
+//	Responses:
+//	  201: bookDetailsuccessResponse
+//	  400: badRequest
+//	  422: errorResponse
+//	  500: errorResponse
 func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title     string   `json:"title" `
@@ -47,6 +59,21 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+// swagger:route GET /books/{id} books getBookDetail
+//
+// Get book details.
+//
+// This will return the details of a specific book by its ID.
+//
+//	Produces:
+//	- application/json
+//
+//	Responses:
+//	  200: successResponse
+//	  400: badRequest
+//	  404: notFound
+//	  500: errorResponse
 func (app *application) bookDetail(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id < 1 {
@@ -68,6 +95,7 @@ func (app *application) bookDetail(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
 func (app *application) bookUpdate(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -149,6 +177,7 @@ func (app *application) bookDelete(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
 func (app *application) bookList(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title  string
