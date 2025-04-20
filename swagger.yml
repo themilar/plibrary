@@ -210,6 +210,14 @@ paths:
         get:
             description: This will return books that match the search query parameter.
             operationId: searchBooks
+            parameters:
+                - description: Search query string to filter books by title or content
+                  example: fantasy adventure
+                  in: query
+                  name: q
+                  pattern: ^[a-zA-Z0-9 ]{1,50}$
+                  type: string
+                  x-go-name: Q
             produces:
                 - application/json
             responses:

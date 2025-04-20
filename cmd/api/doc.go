@@ -143,5 +143,5 @@ type SearchQueryParams struct {
 	// in: query
 	// pattern: ^[a-zA-Z0-9 ]{1,50}$
 	// example: fantasy adventure
-	q string `json:"q"`
+	Q string `json:"q"`
 }
