@@ -1,19 +1,3 @@
-// Package classification plibrary API documentation
-//
-// Documentation of the plibrary API:
-//
-// Schemes: http, https
-// Host: localhost:4000
-// BasePath: /v1
-// Version: 1.0.0
-//
-// Consumes:
-// -application/json
-//
-// Produces:
-// -application/json
-//
-// swagger:meta
 package main
 
 import (

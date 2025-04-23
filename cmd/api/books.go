@@ -11,18 +11,6 @@ import (
 	"github.com/themilar/plibrary/internal/models"
 )
 
-// swagger:route POST /books books createBook
-//
-// Add a book to the database.
-//
-//	Produces:
-//	- application/json
-//
-//	Responses:
-//	  201: bookDetail
-//	  400: badRequest
-//	  422: badRequest
-//	  500: internalServerError
 func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title     string   `json:"title" `
@@ -60,20 +48,6 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:route GET /books/{id} books getBookDetail
-//
-// Get book details.
-//
-// This will return the details of a specific book by its ID.
-//
-//	Produces:
-//	- application/json
-//
-//	Responses:
-//	  200: bookDetail
-//	  400: badRequest
-//	  404: notFound
-//	  500: internalServerError
 func (app *application) bookDetail(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id < 1 {
@@ -96,22 +70,6 @@ func (app *application) bookDetail(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// swagger:route PATCH /books/{id} books updateBook
-//
-// # Update book details
-//
-// This will update the specified book with the parameters specified in the request body.
-//
-//	Produces:
-//	- application/json
-//
-//	Responses:
-//
-// 200: successResponse
-// 400: badRequest
-// 404: notFound
-// 409: badRequest
-// 500: internalServerError
 func (app *application) bookUpdate(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -172,21 +130,6 @@ func (app *application) bookUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:route DELETE /books/{id} books deleteBook
-//
-// Delete a book
-//
-// This will delete a specific book by its ID.
-//
-//	Produces:
-//	- application/json
-//
-//	Responses:
-//	  204: noContent
-//	  400: badRequest
-//	  404: notFound
-//	  500: internalServerError
-
 func (app *application) bookDelete(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -209,17 +152,6 @@ func (app *application) bookDelete(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Get a paginated list of books.
-// This endpoint returns a paginated list of books.
-//
-//	Produces:
-//	- application/json
-//	Responses:
-//	  200: paginatedBooksResponse
-//	  400: badRequest
-//	  500: internalServerError
-//
-//swagger:route GET /books books listBooks
 func (app *application) bookList(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title  string
@@ -259,19 +191,6 @@ func (app *application) bookList(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:route GET /books/search books searchBooks
-//
-// Search for books.
-//
-// This will return books that match the search query parameter.
-//
-//	Produces:
-//	- application/json
-//
-//	Responses:
-//	  200: bookSearch
-//	  400: badRequest
-//	  500: internalServerError
 func (app *application) bookSearch(w http.ResponseWriter, r *http.Request) {
 	qs := r.URL.Query()
 	title := app.readString(qs, "q", "")
