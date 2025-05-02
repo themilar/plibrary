@@ -14,7 +14,7 @@ func (app *application) routes() *chi.Mux {
 	router.Use(middleware.Recoverer)
 	router.Use(httprate.LimitByIP(50, time.Minute))
 	router.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{"*"},
+		AllowedOrigins: []string{"http://localhost:9000"},
 		AllowedMethods: []string{"GET", "POST", "PATCH", "DELETE"},
 		AllowedHeaders: []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		MaxAge:         300,
