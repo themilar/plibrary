@@ -20,6 +20,10 @@ type config struct {
 	db   struct {
 		dsn string
 	}
+	limiter struct {
+		enabled bool
+		rpm     int
+	}
 }
 
 type application struct {
@@ -39,6 +43,8 @@ func main() {
 	flag.IntVar(&cfg.port, "port", 4000, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
 	flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("DATABASE_URL"), "PostgreSQL DSN")
+	flag.BoolVar(&cfg.limiter.enabled, "limitenabled", true, "Enable rate limiter")
+	flag.IntVar(&cfg.limiter.rpm, "limitrpm", 50, "rate limiter maximum requests per minute")
 	flag.Parse()
 
 	db, err := pgxpool.New(context.Background(), cfg.db.dsn)

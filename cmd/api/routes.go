@@ -12,7 +12,9 @@ import (
 func (app *application) routes() *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(middleware.Recoverer)
-	router.Use(httprate.LimitByIP(50, time.Minute))
+	if app.config.limiter.enabled {
+		router.Use(httprate.LimitByIP(app.config.limiter.rpm, time.Minute))
+	}
 	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins: []string{"http://localhost:9000"},
 	}))
