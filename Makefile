@@ -21,4 +21,6 @@ db/migrations/up: confirm
 	@echo 'Running up migrations...'
 	@migrate -path ./migrations -database ${DATABASE_URL} up
 
-
+build/api:
+	@echo 'Building cmd/api...'
+	go build -o=./bin/api ./cmd/api
