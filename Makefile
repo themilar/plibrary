@@ -21,6 +21,11 @@ db/migrations/up: confirm
 	@echo 'Running up migrations...'
 	@migrate -path ./migrations -database ${DATABASE_URL} up
 
+## db/migrate: apply all up migrations without confimation (for render)
+db/migrate:
+	@echo 'Running up migrations...'
+	@migrate -path ./migrations -database ${DATABASE_URL} up
+
 ## build/api: build the cmd/api application
 build/api:
 	@echo 'Building cmd/api...'
