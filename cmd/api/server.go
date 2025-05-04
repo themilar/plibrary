@@ -13,8 +13,14 @@ import (
 )
 
 func (app *application) serve() error {
+	var address string
+	if app.config.env == "development" {
+		address = fmt.Sprintf("localhost:%d", app.config.port)
+	} else if app.config.env == "production" {
+		address = fmt.Sprintf(":%v", app.config.port)
+	}
 	srv := &http.Server{
-		Addr:         fmt.Sprintf("localhost:%d", app.config.port),
+		Addr:         address,
 		Handler:      app.routes(),
 		ErrorLog:     slog.NewLogLogger(slog.NewJSONHandler(os.Stdout, nil), slog.LevelError),
 		IdleTimeout:  time.Minute,
