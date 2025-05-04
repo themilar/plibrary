@@ -1,0 +1,279 @@
+type: collection.insomnia.rest/5.0
+name: plibrary
+meta:
+  id: wrk_26bc2585720d40079ef5d8267b4b8188
+  created: 1744342359930
+  modified: 1744342359930
+collection:
+  - url: "{{ _.base_url }}/v1/books"
+    name: create book
+    meta:
+      id: req_d4c0afa9ae9644499a0dc36cc3f52259
+      created: 1744342366678
+      modified: 1744796935360
+      isPrivate: false
+      sortKey: -1744342366679
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"title":"everything necessary",
+        	"pages":294,
+        	"published":1957,
+        	"genres":["fiction","fantasy"]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/11.0.2
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.base_url }}/v1/books"
+    name: get books
+    meta:
+      id: req_eefa47e55a68419cb792555a5ba22a11
+      created: 1744342366878
+      modified: 1744796741075
+      isPrivate: false
+      sortKey: -1744454189247
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/11.0.2
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.base_url }}/v1/books/5"
+    name: get book
+    meta:
+      id: req_911c834024c84b4a8d5148cf299b921d
+      created: 1744342367619
+      modified: 1744353029464
+      isPrivate: false
+      sortKey: -1744342367619
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/11.0.2
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.base_url }}/v1/books/:id"
+    name: update book
+    meta:
+      id: req_4dc78bd1290f42a18cfae4d792476b84
+      created: 1744342408420
+      modified: 1744797219149
+      isPrivate: false
+      sortKey: -1744342366579
+    method: PATCH
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"title":"every means necessary"
+        }
+    parameters:
+      - id: pair_56dcd98cc2ab465a8c3c2d72d498f190
+        disabled: false
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/11.0.2
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+    pathParameters:
+      - name: id
+        value: "15"
+  - url: "{{ _.base_url }}/v1/books"
+    name: get books w pagination parameters
+    meta:
+      id: req_5f1d48d201264dc284d0131083e0039b
+      created: 1744358835464
+      modified: 1745078319107
+      isPrivate: false
+      sortKey: -1744353275849
+    method: GET
+    parameters:
+      - id: pair_5a5d848f9bbf40c29e6f3f156fddcd7e
+        name: page
+        value: "1"
+        disabled: false
+      - id: pair_311fe70bc45e443e9711d7d6c316a7f9
+        name: size
+        value: "20"
+        disabled: false
+    headers:
+      - name: User-Agent
+        value: insomnia/11.0.2
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.base_url }}/v1/books"
+    name: get books filtered by title
+    meta:
+      id: req_e012f5d34a944640adf6e7412002ecfd
+      created: 1744364184079
+      modified: 1744372638725
+      isPrivate: false
+      sortKey: -1744364184079
+    method: GET
+    parameters:
+      - id: pair_d95adff91564428e89afacdef0ecbdb0
+        name: title
+        value: on call
+        disabled: false
+    headers:
+      - name: User-Agent
+        value: insomnia/11.0.2
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.base_url }}/v1/books"
+    name: get books filtered by genre
+    meta:
+      id: req_0a62e92f832d456da18c8e89551869a6
+      created: 1744364552737
+      modified: 1745154296650
+      isPrivate: false
+      sortKey: -1744364552737
+    method: GET
+    parameters:
+      - id: pair_44886c92c9a54b12bfaeb7e4bddbe4e4
+        name: genres
+        value: adventure,animation
+        disabled: false
+    headers:
+      - name: User-Agent
+        value: insomnia/11.0.2
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.base_url }}/v1/books/search"
+    name: search books
+    meta:
+      id: req_2eca783a085f4f54926e70052f908df7
+      created: 1744373531337
+      modified: 1744796743641
+      isPrivate: false
+      sortKey: -1744454189197
+    method: GET
+    parameters:
+      - id: pair_4138bd1adcda4ff19f932c99c675886c
+        name: q
+        value: black
+        disabled: false
+    headers:
+      - name: User-Agent
+        value: insomnia/11.0.2
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.base_url }}/v1/books"
+    name: sorted book list
+    meta:
+      id: req_af06ab159d8f4cd582fc2b08e9e0db60
+      created: 1744454189147
+      modified: 1744796596217
+      isPrivate: false
+      sortKey: -1744454189147
+    method: GET
+    parameters:
+      - id: pair_3919d72a5a3943048f6bf7329f293a78
+        name: sort
+        value: published
+        disabled: false
+    headers:
+      - name: User-Agent
+        value: insomnia/11.0.2
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.base_url }}/v1/books/:id"
+    name: delete book
+    meta:
+      id: req_45ed271171424eb9864d84e045707075
+      created: 1744796587844
+      modified: 1745078332816
+      isPrivate: false
+      sortKey: -1744342366479
+    method: DELETE
+    headers:
+      - name: User-Agent
+        value: insomnia/11.0.2
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+    pathParameters:
+      - name: id
+        value: "16"
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_60b61cebecff0e2858f96d4b99e748ea1b5cd329
+    created: 1744342359946
+    modified: 1744342359946
+environments:
+  name: Base Environment
+  meta:
+    id: env_60b61cebecff0e2858f96d4b99e748ea1b5cd329
+    created: 1744342359942
+    modified: 1744352917737
+    isPrivate: false
+  data:
+    base_url: localhost:4000
