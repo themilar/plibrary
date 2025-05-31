@@ -11,6 +11,7 @@ import (
 
 func (app *application) routes() *chi.Mux {
 	router := chi.NewRouter()
+	router.Use(app.requestLogger)
 	router.Use(middleware.Recoverer)
 	if app.config.limiter.enabled {
 		router.Use(httprate.LimitByIP(app.config.limiter.rpm, time.Minute))

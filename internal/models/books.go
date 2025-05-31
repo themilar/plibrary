@@ -57,7 +57,7 @@ func NewModels(db *pgxpool.Pool) Models {
 		Books: BookModel{DB: db},
 	}
 }
-func (b BookModel) All(title string, genres []string, filters internal.Filters) ([]*Book, internal.PaginationMetadata, error) {
+func (b BookModel) All(title string, genres []string, filters internal.Filters) ([]*Book, *internal.PaginationMetadata, error) {
 	query := fmt.Sprintf(`SELECT COUNT(*) OVER(), id,created_at,title,published,pages,genres,version 
 	FROM books 
 	WHERE (LOWER(title)=LOWER($1) OR $1='')
@@ -67,7 +67,7 @@ func (b BookModel) All(title string, genres []string, filters internal.Filters) 
 	params := []any{title, genres, filters.Limit(), filters.Offset()}
 	rows, err := b.DB.Query(context.Background(), query, params...)
 	if err != nil {
-		return nil, internal.PaginationMetadata{}, err
+		return nil, nil, err
 	}
 	defer rows.Close()
 
@@ -77,12 +77,12 @@ func (b BookModel) All(title string, genres []string, filters internal.Filters) 
 		var book Book
 		err := rows.Scan(&totalRecords, &book.ID, &book.CreatedAt, &book.Title, &book.Published, &book.Pages, &book.Genres, &book.Version)
 		if err != nil {
-			return nil, internal.PaginationMetadata{}, err
+			return nil, nil, err
 		}
 		books = append(books, &book)
 	}
 	if err = rows.Err(); err != nil {
-		return nil, internal.PaginationMetadata{}, err
+		return nil, nil, err
 	}
 	metadata := internal.CalculateMetadata(totalRecords, filters.Page, filters.Size)
 	return books, metadata, nil

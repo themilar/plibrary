@@ -29,11 +29,11 @@ type PaginationMetadata struct {
 	TotalRecords int `json:"total_records,omitempty"`
 }
 
-func CalculateMetadata(totalRecords, page, pageSize int) PaginationMetadata {
+func CalculateMetadata(totalRecords, page, pageSize int) *PaginationMetadata {
 	if totalRecords == 0 {
-		return PaginationMetadata{}
+		return &PaginationMetadata{}
 	}
-	return PaginationMetadata{
+	return &PaginationMetadata{
 		CurrentPage: page,
 		PageSize:    pageSize,
 		FirstPage:   1,
